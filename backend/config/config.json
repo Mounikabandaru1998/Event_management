@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "root",
+    "password": "mounika",
+    "database": "event_db",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}
