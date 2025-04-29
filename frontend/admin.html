@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+</head>
+<body>
+  <h1>Admin Login</h1>
+  <input type="email" id="adminEmail" placeholder="Enter admin email" />
+  <button onclick="adminLogin()">Login</button>
+
+  <script>
+    async function adminLogin() {
+      const email = document.getElementById('adminEmail').value;
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, role: 'admin' })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('admin', JSON.stringify(data));
+        window.location.href = '/admin_dashboard.html';
+      } else {
+        alert(data.message);
+      }
+    }
+  </script>
+</body>
+</html>

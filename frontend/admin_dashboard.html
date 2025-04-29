@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+</head>
+<body>
+  <h1 id="welcomeText">Welcome!</h1>
+  <button onclick="showAllEvents()">All Events</button>
+  <button onclick="showCreateForm()">Create New Event</button>
+
+  <div id="contentArea"></div>
+
+  <script>
+    const admin = JSON.parse(localStorage.getItem('admin'));
+    document.getElementById('welcomeText').textContent = `Welcome, ${admin?.name || 'Admin'}!`;
+    
+    async function showAllEvents() {
+      try {
+        const res = await fetch('/api/events');
+        const events = await res.json();
+    
+        const content = document.getElementById('contentArea');
+        content.innerHTML = '<h2>All Events</h2>';
+    
+        events.forEach(event => {
+          const eventDate = new Date(event.date).toISOString().split('T')[0];
+          const createdAt = new Date(event.createdAt).toISOString().split('T')[0];
+    
+          const eventDiv = document.createElement('div');
+          eventDiv.innerHTML = `
+            <strong>Event Title:</strong> ${event.title} <br>
+            <strong>User Name:</strong> ${event.User ? event.User.name : 'Unknown User'} <br>
+            <strong>Event Date:</strong> ${eventDate} <br>
+            <strong>Created At:</strong> ${createdAt} <br>
+            <hr>
+          `;
+          content.appendChild(eventDiv);
+        });
+    
+      } catch (err) {
+        console.error('Error loading events:', err);
+        alert('Failed to load events.');
+      }
+    }
+    
+    async function showCreateForm() {
+      const res = await fetch('/api/users');
+      const users = await res.json();
+    
+      let form = `
+        <h2>Create New Event for User</h2>
+        <select id="userSelect">
+          ${users.map(user => `<option value="${user.id}">${user.name} (${user.email})</option>`).join('')}
+        </select><br><br>
+        <input type="text" id="eventTitle" placeholder="Event Title" /><br><br>
+        <input type="date" id="eventDate" /><br><br>
+        <textarea id="eventDescription" placeholder="Event Description"></textarea><br><br>
+        <button onclick="submitNewEvent()">Create Event</button>
+      `;
+    
+      document.getElementById('contentArea').innerHTML = form;
+    }
+    
+    async function submitNewEvent() {
+      const userId = document.getElementById('userSelect').value;
+      const title = document.getElementById('eventTitle').value;
+      const date = document.getElementById('eventDate').value;
+      const description = document.getElementById('eventDescription').value;
+    
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, date, description, userId })
+      });
+    
+      const data = await res.json();
+    
+      if (res.ok) {
+        alert('Event created successfully!');
+        showAllEvents();
+      } else {
+        alert('Failed to create event');
+      }
+    }
+    </script>
+    
+</body>
+</html>
