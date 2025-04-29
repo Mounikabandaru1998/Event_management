@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Login</title>
+</head>
+<body>
+  <h1>Event Management</h1>
+
+  <div id="loginDiv">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Enter your Email" />
+    <button onclick="login()">Login</button>
+    <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+  </div>
+
+  <div id="registerDiv" style="display: none;">
+    <h2>Register</h2>
+    <input type="text" id="registerName" placeholder="Enter your Name" /><br><br>
+    <input type="email" id="registerEmail" placeholder="Enter your Email" /><br><br>
+    <button onclick="register()">Register</button>
+    <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+  </div>
+
+  <script>
+    function showRegister() {
+      document.getElementById('loginDiv').style.display = 'none';
+      document.getElementById('registerDiv').style.display = 'block';
+    }
+
+    function showLogin() {
+      document.getElementById('registerDiv').style.display = 'none';
+      document.getElementById('loginDiv').style.display = 'block';
+    }
+
+    async function login() {
+      const email = document.getElementById('loginEmail').value;
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, role: 'user' })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('user', JSON.stringify(data));
+        window.location.href = '/user_dashboard.html';  // You can create this page next
+      } else {
+        alert(data.message);
+      }
+    }
+
+    async function register() {
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Registration successful! Please login.');
+        showLogin();
+      } else {
+        alert(data.message);
+      }
+    }
+  </script>
+</body>
+</html>
